@@ -25,8 +25,8 @@ class App {
   }
 
   onClick(e) {
-    var x = Math.random() * this.stageWidth;
-    var y = Math.random() * this.stageHeight;
+    var x = e.clientX;
+    var y = e.clientY;
     this.ball.addBall({x, y});
   }
 
