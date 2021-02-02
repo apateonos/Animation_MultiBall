@@ -9,11 +9,25 @@ class App {
 
     window.addEventListener('resize', this.resize.bind(this), false);
     this.resize();
+    
+    var freeSet = {
+      stageWidth: this.stageWidth,
+      stageHeight: this.stageHeight,
+      context: this.context,
+      maximum: 10
+    }
+    this.ball = new Ball({
+      ...freeSet
+    });
 
-    this.ball = new Ball;
-  
+    window.addEventListener('mousedown', this.onClick.bind(this), false);    
     window.requestAnimationFrame(this.animate.bind(this));
-  
+  }
+
+  onClick(e) {
+    var x = Math.random() * this.stageWidth;
+    var y = Math.random() * this.stageHeight;
+    this.ball.addBall({x, y});
   }
 
   resize() {
@@ -24,9 +38,14 @@ class App {
     this.canvas.height = this.stageHeight;
   }
 
+  gravity() {
+
+  }
+
   animate() {
-    window.requestAnimationFrame(this.animate.bind(this));
     this.context.clearRect(0,0, this.stageWidth, this.stageHeight);
+    this.ball.set();
+    window.requestAnimationFrame(this.animate.bind(this));
   }
 }
 
