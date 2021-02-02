@@ -1,4 +1,5 @@
 import Ball from './ball.js';
+import Block from './block.js';
 
 class App {
   constructor(){
@@ -17,9 +18,11 @@ class App {
       context: this.context,
       maximum: 10
     }
+    this.block = new Block();
     this.ball = new Ball({
       ...freeSet
     });
+    
     window.addEventListener('mousedown', this.isClick.bind(this), false);
     window.addEventListener('mouseup', this.isRelease.bind(this), false);    
     window.requestAnimationFrame(this.animate.bind(this));
@@ -48,17 +51,18 @@ class App {
   }
 
   massUp() {
-    if (this.mass <= 5) {
+    if (this.mass <= 10) {
       this.mass += 0.1;
     }
   }
 
   animate() {
     this.context.clearRect(0,0, this.stageWidth, this.stageHeight);
-    this.ball.set();
-    if(this.isPress){
-      this.massUp();
-    }
+    if(this.isPress){ this.massUp() };
+
+    this.block.setBlock();
+    this.ball.setBall();
+
     window.requestAnimationFrame(this.animate.bind(this));
   }
 }
