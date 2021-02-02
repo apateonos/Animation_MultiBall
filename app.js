@@ -18,7 +18,7 @@ class App {
       context: this.context,
       maximum: 10
     }
-    this.block = new Block();
+    this.block = new Block({...freeSet});
     this.ball = new Ball({
       ...freeSet
     });
@@ -61,8 +61,7 @@ class App {
     if(this.isPress){ this.massUp() };
 
     this.block.setBlock();
-    this.ball.setBall();
-
+    this.ball.setBall(this.block.blocks);
     window.requestAnimationFrame(this.animate.bind(this));
   }
 }
