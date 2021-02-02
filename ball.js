@@ -53,7 +53,6 @@ Ball.prototype.collisionBall = function(self, idx) {
         oppnent.friction = true;
         self.friction = true;
 
-        console.log('collision');
         const sv = this.getVelocity(self, oppnent);
         const ov = this.getVelocity(oppnent, self);
 
@@ -84,8 +83,8 @@ Ball.prototype.impactBlock = function (self, blocks) {
       const min1 = Math.min(x1, x2);
       const min2 = Math.min(y1, y2);
       const min = Math.min(min1, min2);
-      
-      console.log(Block.prototype.isImpact(idx,blocks));
+
+      Block.prototype.isImpact(idx, blocks);
       if (min == min1) {
         self.velocity.x *= -1*self.elasticity;
         self.friction = true

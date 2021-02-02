@@ -16,8 +16,8 @@ export default function Block (settings) {
 Block.prototype.addBlock = function(settings) {
   var self = this;
   if (self.blocks.length < self.settings.maximumBlock) {
-    console.log('add!!');
     settings.opacity = 1;
+    settings.color = `rgb(255, 192, 232, 1)`;
     settings.durability = self.settings.durability;
     settings.width = self.settings.maxWidth*Math.random();
     settings.thickness = self.settings.thickness;
@@ -30,9 +30,13 @@ Block.prototype.addBlock = function(settings) {
 // 수정이 필요함
 Block.prototype.isImpact = function(idx, blocks) {
   const self = blocks[idx];
+  console.log('impact!!')
   if ( self.durability <= 0 ){
     blocks.splice(idx, 1);
   } else{
+    self.opacity -= 0.2;
+    console.log(self.opacity);
+    self.color = `rgb(255, 192, 232, ${self.opacity})`;
     self.durability -= 1;
   }
 }
@@ -46,7 +50,7 @@ Block.prototype.setBlock = function() {
     var self = this.blocks[idx];
     this.context.beginPath();
     this.context.rect(self.x, self.y, self.width, self.thickness);
-    this.context.fillStyle = 'red';
+    this.context.fillStyle = self.color;
     this.context.fillText = self.opacity; 
     this.context.fill();
     this.context.closePath();
