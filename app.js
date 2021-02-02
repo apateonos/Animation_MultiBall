@@ -5,11 +5,12 @@ class App {
     console.log(this);
     this.canvas = document.createElement('canvas');
     this.context = this.canvas.getContext('2d');
+    this.isPress = false;
+    this.mass = 1;
     document.body.appendChild(this.canvas);
 
     window.addEventListener('resize', this.resize.bind(this), false);
     this.resize();
-    
     var freeSet = {
       stageWidth: this.stageWidth,
       stageHeight: this.stageHeight,
@@ -19,15 +20,23 @@ class App {
     this.ball = new Ball({
       ...freeSet
     });
-
-    window.addEventListener('mousedown', this.onClick.bind(this), false);    
+    window.addEventListener('mousedown', this.isClick.bind(this), false);
+    window.addEventListener('mouseup', this.isRelease.bind(this), false);    
     window.requestAnimationFrame(this.animate.bind(this));
   }
 
-  onClick(e) {
+  isClick() {
+    this.isPress = true;
+  }
+
+
+  isRelease(e) {
+    this.isPress = false;
     var x = e.clientX;
     var y = e.clientY;
-    this.ball.addBall({x, y});
+    var mass = this.mass;
+    this.ball.addBall({x, y, mass});
+    this.mass = 1;
   }
 
   resize() {
@@ -38,13 +47,18 @@ class App {
     this.canvas.height = this.stageHeight;
   }
 
-  gravity() {
-
+  massUp() {
+    if (this.mass <= 5) {
+      this.mass += 0.1;
+    }
   }
 
   animate() {
     this.context.clearRect(0,0, this.stageWidth, this.stageHeight);
     this.ball.set();
+    if(this.isPress){
+      this.massUp();
+    }
     window.requestAnimationFrame(this.animate.bind(this));
   }
 }

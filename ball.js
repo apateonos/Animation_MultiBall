@@ -5,61 +5,93 @@ export default function Ball(settings) {
   this.stageHeight = settings.stageHeight;
   this.context = settings.context;
   this.maximumBall = settings.maximum;
+  this.gravity = 1;
   this.property = {
     radius: 10,
-    mass: 1,
-    elasticity: 1
+    elasticity: 1,
+    loss: 0.1,
+    inertia: 1
   }
 }
 
 console.log(Ball.prototype);
 
 Ball.prototype.addBall = function(settings) {
-  var count = 0;
   var self = this;
   if (self.balls.length >= self.maximumBall) {
     return false;
   }
+  settings.bounce = 0;
   settings.radius = self.property.radius;
-  settings.mass = self.property.mass;
   settings.elasticity = self.property.elasticity;
+  settings.friction = {
+    x: false,
+    y: false
+  }
   settings.velocity = {
-    x: Math.random()*4,
-    y: Math.random()*4
+    x: Math.random(),
+    y: 0
   }
   this.balls.push(settings);
-  console.log(this.balls)
 }
 
-Ball.prototype.getVelocity = function(self) {
+Ball.prototype.getVelocity = function(self, oppnent) {
+  var result = {
+    x: ((self.velocity.x * (self.mass - oppnent.mass) + 2 * oppnent.mass * oppnent.velocity.x) / (self.mass + oppnent.mass)),
+    y: ((self.velocity.y * (self.mass - oppnent.mass) + 2 * oppnent.mass * oppnent.velocity.y) / (self.mass + oppnent.mass))
+  }
 
+  return result;
 }
 
 Ball.prototype.collisionBall = function(self, idx) {
   for (var key in this.balls){
     if(key !== idx){
       var oppnent = this.balls[key];
-      var distance = Math.sqrt(Math.pow(oppnent.x - self.x, 2) + Math.pow(oppnent.y - self.y, 2), 2);
-      var collisionDistance = self.radius + oppnent.radius;
-      if (distance <= collisionDistance){
-        var tx = oppnent.velocity.x;
-        var ty = oppnent.velocity.y;
 
-        oppnent.velocity.x = self.velocity.x;
-        oppnent.velocity.y = self.velocity.y;
-        self.velocity.x = tx;
-        self.velocity.y = ty;
+      var px = self.x + self.velocity.x;
+      var py = self.y + self.velocity.y;
+
+      console.log(px, py);
+
+      var distance = Math.sqrt(Math.pow(oppnent.x - px, 2) + Math.pow(oppnent.y - py, 2), 2);
+      var collisionDistance = self.radius*self.mass + oppnent.radius*oppnent.mass;
+      if (distance <= collisionDistance){
+        oppnent.friction.x = true;
+        oppnent.friction.y = true;
+        self.friction.x = true;
+        self.friction.y = true;
+
+        console.log('collision');
+        var sv = this.getVelocity(self, oppnent);
+        var ov = this.getVelocity(oppnent, self);
+
+        self.velocity = sv;
+        oppnent.velocity = ov;
       }
     }
   }
 }
 
-Ball.prototype.bounceWindow = function(self) {
-  if( self.radius >= self.x || self.x >= this.stageWidth){
+Ball.prototype.gravityEffect = function (self) {
+  self.velocity.y += this.gravity;
+}
+
+
+Ball.prototype.bounceWindow = function(self, idx) {
+  var px = self.x + self.velocity.x;
+  var py = self.y + self.velocity.y;
+
+  if( self.radius >= px || px >= this.stageWidth){
     self.velocity.x *= -1;
+    self.friction.x = true
   }
-  if( self.radius >= self.y || self.y >= this.stageHeight){
+  if( self.radius >= py || py >= this.stageHeight){
     self.velocity.y *= -1;
+    self.bounce += 1;
+    self.friction.y = true;
+  } else {
+    this.gravityEffect(self);
   }
 }
 
@@ -72,13 +104,11 @@ Ball.prototype.set = function() {
   var self = this;
   for (var idx in self.balls){
     var ball = self.balls[idx];
-
-    this.collisionBall(ball, idx);
-    this.bounceWindow(ball);
-    this.move(ball);
-
     this.context.beginPath();
-    this.context.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI, false);
+    this.collisionBall(ball, idx);
+    this.bounceWindow(ball, idx);
+    this.move(ball);
+    this.context.arc(ball.x, ball.y, ball.radius*ball.mass, 0, 2 * Math.PI, false);
     this.context.fillStyle = 'white';
     this.context.fill();
     this.context.closePath();
